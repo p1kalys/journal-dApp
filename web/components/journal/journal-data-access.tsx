@@ -43,12 +43,10 @@ export function useJournalProgram() {
         programId,
       );
    
-      return program.methods
-        .createJournalEntry(title, message)
-        .accounts({
-          journalEntry: journalEntryAddress,
-        })
-        .rpc();
+      if (!title || !message ) {
+        throw new Error("Invalid");
+      }
+      return program.methods.createJournalEntry(title, message,).rpc({ skipPreflight: true });
     },
     onSuccess: signature => {
       transactionToast(signature);
@@ -89,9 +87,6 @@ export function useJournalProgramAccount({ account }: { account: PublicKey }) {
    
       return program.methods
         .updateJournalEntry(title, message)
-        .accounts({
-          journalEntry: journalEntryAddress,
-        })
         .rpc();
     },
     onSuccess: signature => {
@@ -108,7 +103,6 @@ export function useJournalProgramAccount({ account }: { account: PublicKey }) {
     mutationFn: (title: string) =>
       program.methods
         .deleteJournalEntry(title)
-        .accounts({ journalEntry: account })
         .rpc(),
     onSuccess: tx => {
       transactionToast(tx);
